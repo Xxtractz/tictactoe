@@ -1,8 +1,22 @@
 package za.co.xxtractz;
 
-import java.util.Scanner;
+
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.logging.Logger;
+
 
 public class Main {
+    private static Character[][] gameBoard;
+
+    private static List<Integer> availableMoves;
+    private static Player player1;
+    private static Player player2;
+    private static final int[][] MOVE_POSITIONS = new int[][]{
+            {0, 0}, {0, 2}, {0, 4}, {2, 0}, {2, 2}, {2, 4}, {4, 0}, {4, 2}, {4, 4}
+    };
+    private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
+
     public static void main(String[] args) {
         /*
          * 0|X|0
@@ -11,149 +25,133 @@ public class Main {
          * -+-+-
          * X|0|X
          * */
-        Character[][] gameBoard = {{' ', '|', ' ', '|', ' '},
+        setAvailableMoves();
+        gameBoard = new Character[][]{{' ', '|', ' ', '|', ' '},
                 {'-', '+', '-', '+', '-'},
                 {' ', '|', ' ', '|', ' '},
                 {'-', '+', '-', '+', '-'},
                 {' ', '|', ' ', '|', ' '}};
 
+        play();
+
+    }
+
+    private static void play() {
         Scanner scanner = new Scanner(System.in);
 
-        boolean player2Turn = false;
-        boolean player1Turn = true;
+        LOGGER.info("Please Select number of players (Maximum 2): ");
+        int players = scanner.nextInt();
 
-        while (true) {
+        if (players > 0 && players < 3) {
 
-            if (player1Turn) {
-                //We want player 1 inputs and also handle errors
-                System.out.print("PLayer1 Enter your placement (1-9): ");
-                int player1 = scanner.nextInt();
-
-                if (gameBoard[0][0] == ' ' && player1 == 1) {
-                    gameBoard[0][0] = 'X';
-                    player2Turn = true;
-                    player1Turn = false;
-                }
-                if (gameBoard[0][2] == ' ' && player1 == 2) {
-                    gameBoard[0][2] = 'X';
-                    player2Turn = true;
-                    player1Turn = false;
-                }
-                if (gameBoard[0][4] == ' ' && player1 == 3) {
-                    gameBoard[0][4] = 'X';
-                    player2Turn = true;
-                    player1Turn = false;
-                }
-                if (gameBoard[2][0] == ' ' && player1 == 4) {
-                    gameBoard[2][0] = 'X';
-                    player2Turn = true;
-                    player1Turn = false;
-                }
-                if (gameBoard[2][2] == ' ' && player1 == 5) {
-                    gameBoard[2][2] = 'X';
-                    player2Turn = true;
-                    player1Turn = false;
-                }
-
-                if (gameBoard[2][4] == ' ' && player1 == 6) {
-                    gameBoard[2][4] = 'X';
-                    player2Turn = true;
-                    player1Turn = false;
-                }
-
-                if (gameBoard[4][0] == ' ' && player1 == 7) {
-                    gameBoard[4][0] = 'X';
-                    player2Turn = true;
-                    player1Turn = false;
-                }
-
-                if (gameBoard[4][2] == ' ' && player1 == 8) {
-                    gameBoard[4][2] = 'X';
-                    player2Turn = true;
-                    player1Turn = false;
-                }
-
-                if (gameBoard[4][4] == ' ' && player1 == 9) {
-                    gameBoard[4][4] = 'X';
-                    player2Turn = true;
-                    player1Turn = false;
-                }
-
-                if (player1 < 1 || player1 > 9) {
-                    break;
-                }
+            if (players == 2) {
+                player1 = new Player("Musa", new ArrayList<>(), PlayerType.HUMAN, 'X', true);
+                player2 = new Player("Xxtract", new ArrayList<>(), PlayerType.HUMAN, 'O', false);
+            } else {
+                player1 = new Player("Musa", new ArrayList<>(), PlayerType.HUMAN, 'X', true);
+                player2 = new Player(PlayerType.CPU.getDescription(), new ArrayList<>(), PlayerType.CPU, 'O', false);
             }
-            // Player 2 and Handle errors
 
-            if (player2Turn) {
-                System.out.print("Player 2 Enter your placement (1-9): ");
-                int player2 = scanner.nextInt();
 
-                if (gameBoard[0][0] == ' ' && player2 == 1) {
-                    gameBoard[0][0] = '0';
-                    player1Turn = true;
-                    player2Turn = false;
-                }
-                if (gameBoard[0][2] == ' ' && player2 == 2) {
-                    gameBoard[0][2] = '0';
-                    player1Turn = true;
-                    player2Turn = false;
-                }
-                if (gameBoard[0][4] == ' ' && player2 == 3) {
-                    gameBoard[0][4] = '0';
-                    player1Turn = true;
-                    player2Turn = false;
-                }
-                if (gameBoard[2][0] == ' ' && player2 == 4) {
-                    gameBoard[2][0] = '0';
-                    player1Turn = true;
-                    player2Turn = false;
-                }
-                if (gameBoard[2][2] == ' ' && player2 == 5) {
-                    gameBoard[2][2] = '0';
-                    player1Turn = true;
-                    player2Turn = false;
-                }
+            boolean isGameInProgress = true;
+            while (isGameInProgress) {
+                LOGGER.info(availableMoves.toString() + "At Restart");
+                Player player = getCurrentPlayer();
 
-                if (gameBoard[2][4] == ' ' && player2 == 6) {
-                    gameBoard[2][4] = '0';
-                    player1Turn = true;
-                    player2Turn = false;
-                }
+                if (availableMoves.isEmpty()) {
+                    LOGGER.info("Game over. It's a draw!");
+                    isGameInProgress = false;
+                } else {
+                    LOGGER.info(player.getName() + " :: Enter your move (1-9): ");
+                    int move = scanner.nextInt();
 
-                if (gameBoard[4][0] == ' ' && player2 == 7) {
-                    gameBoard[4][0] = '0';
-                    player1Turn = true;
-                    player2Turn = false;
-                }
-
-                if (gameBoard[4][2] == ' ' && player2 == 8) {
-                    gameBoard[4][2] = '0';
-                    player1Turn = true;
-                    player2Turn = false;
-                }
-
-                if (gameBoard[4][4] == ' ' && player2 == 9) {
-                    gameBoard[4][4] = '0';
-                    player1Turn = true;
-                    player2Turn = false;
-                }
-
-                if (player2 < 1 || player2 > 9) {
-                    break;
+                    if (isValidInput(move)) {
+                        if (isValidMove(move)) {
+                            setGameBoardPosition(move, player.getSymbol());
+                            player.addMove(move);
+                            if (isWinner()) {
+                                LOGGER.info(getCurrentPlayer().getName() + " wins!");
+                                isGameInProgress = false;
+                            }
+                            availableMoves.remove(Integer.valueOf(move));
+                            switchPlayers();
+                            LOGGER.info(MessageFormat.format("{0}::: {1}", player.getName(), player));
+                        } else {
+                            LOGGER.info("Invalid move. Please try again.");
+                        }
+                    } else {
+                        isGameInProgress = false;
+                    }
+                    printBoard();
                 }
             }
         }
-
-        printGameCard(gameBoard);
     }
 
-    private static void printGameCard(Character[][] gameBoard) {
-        for (Character[] row : gameBoard) {
-            for (char c : row) {
-                System.out.print(c);
+    private static void printBoard() {
+        for (Character[] characters : gameBoard) {
+            for (Character character : characters) {
+                System.out.print(character.toString());
             }
             System.out.println();
         }
+    }
+
+    private static void switchPlayers() {
+        if (player1.isPlayerTurn()) {
+            player2.setPlayerTurn(true);
+            player1.setPlayerTurn(false);
+
+        } else {
+            player2.setPlayerTurn(false);
+            player1.setPlayerTurn(true);
+        }
+    }
+
+    private static Player getCurrentPlayer() {
+        if (player1.isPlayerTurn()) {
+            return player1;
+        } else {
+            return player2;
+        }
+    }
+
+    private static boolean isValidInput(int move) {
+        return move > 0 && move <= 9;
+    }
+
+    private static boolean isValidMove(int value) {
+        return value > 0 && value <= 9 && (availableMoves.contains(value));
+    }
+
+    private static void setAvailableMoves() {
+        availableMoves = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9));
+    }
+
+    private static void setGameBoardPosition(int move, Character playerSymbol) {
+        if (move >= 1 && move <= 9) {
+            int[] position = MOVE_POSITIONS[move - 1];
+            gameBoard[position[0]][position[1]] = playerSymbol;
+        }
+    }
+
+    private static boolean isWinner() {
+
+        if (getCurrentPlayer().getMoves().size() < 3) return false;
+        List<Integer> moves = getCurrentPlayer().getMoves();
+
+        // List of winning combinations
+        int[][] winningCombinations = new int[][]{
+                {1, 2, 3}, {4, 5, 6}, {7, 8, 9},
+                {1, 4, 7}, {2, 5, 8}, {3, 6, 9},
+                {1, 5, 9}, {3, 5, 7}
+        };
+
+        for (int[] combination : winningCombinations) {
+            if (moves.contains(combination[0]) && moves.contains(combination[1]) && moves.contains(combination[2])) {
+                return true;
+            }
+        }
+        return false;
     }
 }
