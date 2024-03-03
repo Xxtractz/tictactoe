@@ -20,5 +20,27 @@ gradle-app.setting
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
 
-.idea
+# Java / Maven / Gradle files
+target/
+build/
+out/
 *.iml
+*.ipr
+*.iws
+*.class
+*.war
+*.ear
+
+# Log files
+*.log
+
+# IntelliJ project files
+.idea/
+
+# macOS files
+.DS_Store
+
+# Temp files
+*~
+tmp/
+temp/
